@@ -51,6 +51,7 @@ class build(_build):
         self.install_prefix = None
         self.py_executable = None
         self.py_version = None
+        self.backend = None
 
     def run(self):
         py_executable = sys.executable
@@ -77,6 +78,7 @@ class build(_build):
         if not self.cxx_path:
             raise DistutilsSetupError("`g++` not found, and `CXX` is not set.")
         self.install_prefix = os.path.join(get_python_lib(), os.pardir, os.pardir, os.pardir)
+        self.backend = os.environ.get("BACKEND", "eigen")
         self.py_executable = py_executable
         self.py_version = py_version
 
@@ -92,6 +94,7 @@ class build(_build):
         log.info("Build directory: " + self.build_dir)
         log.info("Library installation directory: " + self.install_prefix)
         log.info("Python executable: " + self.py_executable)
+        log.info("Backend: " + self.backend)
         log.info("=" * 30)
         run_process([self.cmake_path, "--version"])
         run_process([self.cxx_path, "--version"])
@@ -118,6 +121,7 @@ class build(_build):
             "-DCMAKE_INSTALL_PREFIX=" + self.install_prefix,
             "-DEIGEN3_INCLUDE_DIR=" + os.path.join(self.build_dir, "eigen"),
             "-DPYTHON=" + self.py_executable,
+            "-DBACKEND=" + self.backend,
             ]
         log.info("Configuring...")
         if run_process(cmake_cmd) != 0:
