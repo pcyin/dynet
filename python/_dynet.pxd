@@ -522,3 +522,13 @@ cdef extern from "dynet/cfsm-builder.h" namespace "dynet":
         CExpression subclass_log_distribution(CExpression &rep, unsigned classid) except +
         CExpression subclass_logits(CExpression &rep, unsigned classid) except +
 
+cdef extern from "dynet/lstm_cell.h" namespace "dynet":
+    cdef cppclass CLSTMCell "dynet::LSTMCell":
+        CLSTMCell()
+        CLSTMCell(unsigned input_dim, unsigned hidden_dim, CModel &model)
+
+        void on_new_graph(CComputationGraph& cg)
+        vector[CExpression] step(CExpression &x, vector[CExpression]& s_tm1) except +
+
+        vector[CParameters] params
+        vector[CExpression] param_vars

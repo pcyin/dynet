@@ -19,6 +19,7 @@ set(dynet_library_SRCS
     init.cc
     io.cc
     lstm.cc
+    lstm_cell.cc
     mem.cc
     model.cc
     nodes-activations.cc
@@ -97,6 +98,7 @@ set(dynet_library_HDRS
     init.h
     io.h
     lstm.h
+    lstm_cell.h
     matrix-multiply.h
     mem.h
     model.h

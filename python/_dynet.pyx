@@ -4094,7 +4094,34 @@ cpdef Expression to_device(Expression e, device_str):
     return Expression.from_cexpr(e.cg_version, c_to_device(e.c(), dev))
 
 # }}}
+
+cdef class LSTMCell: # {{{
+    cdef CLSTMCell* thisptr
+    cdef int cg_version
+
+    def __dealloc__(self):
+        del self.thisptr
     
+    def __cinit__(self, unsigned input_dim, unsigned hidden_dim, ParameterCollection model):
+        self.thisptr = new CLSTMCell(input_dim, hidden_dim, model.thisptr)
+        self.cg_version = -1
+
+    cpdef tuple step(self, Expression x, tuple s_tm1):
+        if self.cg_version != _cg.version():
+            self.thisptr.on_new_graph(_cg.thisptr[0])
+            self.cg_version = _cg.version()
+
+        cdef vector[CExpression] s_tm1_vec
+        cdef Expression t
+        for t in s_tm1:
+            ensure_freshness(t) 
+            s_tm1_vec.push_back(t.c())
+
+        cdef vector[CExpression] s_t_vec = self.thisptr.step(x.c(), s_tm1_vec)
+        return (Expression.from_cexpr(self.cg_version, s_t_vec[0]), Expression.from_cexpr(self.cg_version, s_t_vec[1]))
+
+# LSTMCell }}}
+
 # {{{ RNNS / Builders
 # TODO: unify these with inheritance
 
